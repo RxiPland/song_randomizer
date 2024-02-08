@@ -44,22 +44,26 @@ def upload_songs():
         if 'file' not in request.files:
             return render_template("upload_status.html", title="Chyba!", content="Soubor nenalezen!")
 
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            return render_template("upload_status.html", title="Chyba!", content="Soubor nebyl vybrán!")
-        
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+        files = request.files.getlist('file')
 
-            if not os.path.exists(UPLOADS_FOLDER):
-                os.mkdir(UPLOADS_FOLDER)
-
-            file.save(os.path.join(UPLOADS_FOLDER, filename))
-            return render_template("upload_status.html", title="Úspěch!", content="Soubor byl úspěšně nahrán")
+        filenames = []
+        for file in files:
+            # If the user does not select a file, the browser submits an
+            # empty file without a filename.
+            if file.filename == '':
+                return render_template("upload_status.html", title="Chyba!", content="Soubor nebyl vybrán!")
             
-    
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+
+                if not os.path.exists(UPLOADS_FOLDER):
+                    os.mkdir(UPLOADS_FOLDER)
+
+                file.save(os.path.join(UPLOADS_FOLDER, filename))
+                filenames.append(filename)
+
+        return render_template("upload_status.html", title="Úspěch!", content=f"Soubory {', '.join(filenames)} byly úspěšně nahrány")
+        
     return '''
     <!doctype html>
     <title>Nový soubor</title>
@@ -69,9 +73,9 @@ def upload_songs():
         </button>
     </a>
     <hr>
-    <h1>Nahrát nový soubor</h1>
+    <h1>Nahrát nové soubory</h1>
     <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
+      <input type=file name=file multiple>
       <input type=submit value=Upload>
     </form>
     '''
