@@ -28,7 +28,7 @@ def get_songs():
     # randomize
     random.shuffle(loaded_song_paths)
 
-    return render_template("song_list.html", title="Found music", songs=loaded_song_paths)
+    return render_template("homepage.html", title="Found music", songs=loaded_song_paths)
 
 
 
@@ -42,7 +42,7 @@ def upload_songs():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            return render_template("upload_status.html", title="Chyba!", content="Soubor nenalezen!")
+            return render_template("upload_result.html", title="Chyba!", content="Soubor nenalezen!")
 
         files = request.files.getlist('file')
 
@@ -51,7 +51,7 @@ def upload_songs():
             # If the user does not select a file, the browser submits an
             # empty file without a filename.
             if file.filename == '':
-                return render_template("upload_status.html", title="Chyba!", content="Soubor nebyl vybrán!")
+                return render_template("upload_result.html", title="Chyba!", content="Soubor nebyl vybrán!")
             
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -62,23 +62,14 @@ def upload_songs():
                 file.save(os.path.join(UPLOADS_FOLDER, filename))
                 filenames.append(filename)
 
-        return render_template("upload_status.html", title="Úspěch!", content=f"Soubory {', '.join(filenames)} byly úspěšně nahrány")
+        return render_template("upload_result.html", title="Úspěch!", content=f"Soubory {', '.join(filenames)} byly úspěšně nahrány")
         
-    return '''
-    <!doctype html>
-    <title>Nový soubor</title>
-    <a href="../">
-        <button>
-            Zpět
-        </button>
-    </a>
-    <hr>
-    <h1>Nahrát nové soubory</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file multiple>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    
+    elif request.method == 'GET':
+        return render_template("upload_page.html")
+    
+    else:
+        return "Chyba!", 400
 
 @app.route('/uploads/<path:filename>', methods=["GET"])
 def download_file(filename):

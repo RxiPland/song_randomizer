@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nahrát soubory</title>
+</head>
+<body>
+    <a href="../">
+        <button>
+            Zpět
+        </button>
+    </a>
+    
+    <hr>
+
+    <h1>Vyberte soubory:</h1>
+    <form method="post" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file" multiple>
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
