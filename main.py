@@ -23,7 +23,7 @@ def get_songs():
 
     loaded_song_paths = list()
     for song in loaded_song_names:
-        loaded_song_paths.append(request.base_url + "/uploads/" + urllib.parse.quote(song))
+        loaded_song_paths.append(request.base_url + "uploads/" + urllib.parse.quote(song))
 
     # randomize
     random.shuffle(loaded_song_paths)
@@ -72,7 +72,7 @@ def upload_songs():
     </form>
     '''
 
-@app.route('/download_file/<path:filename>', methods=["GET"])
+@app.route('/uploads/<path:filename>', methods=["GET"])
 def download_file(filename):
 
     return send_file(os.path.join(UPLOADS_FOLDER, filename), as_attachment=True)
