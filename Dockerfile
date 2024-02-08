@@ -12,4 +12,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 443
 
-CMD ["python", "main.py"]
+ENTRYPOINT ["python", "main.py"]
