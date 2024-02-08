@@ -5,11 +5,9 @@ services:
     ports:
       - "4650:443"
     volumes:
-      - certs:/certs
       - uploadedSongs:/app/uploads
     environment:
       - PATH_TO_CERTS_FOLDER=/etc/letsencrypt/live/www.example.com
 
 volumes:
-  certs:
   uploadedSongs:
