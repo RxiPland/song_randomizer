@@ -52,6 +52,10 @@ def upload_songs():
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
+
+            if not os.path.exists(UPLOADS_FOLDER):
+                os.mkdir(UPLOADS_FOLDER)
+
             file.save(os.path.join(UPLOADS_FOLDER, filename))
             return render_template("upload_status.html", title="Úspěch!", content="Soubor byl úspěšně nahrán")
             
