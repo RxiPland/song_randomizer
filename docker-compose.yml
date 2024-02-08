@@ -1,0 +1,11 @@
+version: '3'
+services:
+  song_randomizer:
+    build: .
+    ports:
+      - "4650:443"
+    volumes:
+      - certs:/certs
+
+volumes:
+  certs:

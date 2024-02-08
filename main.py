@@ -78,4 +78,8 @@ def download_file(filename):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=4650)
+
+    if os.path.exists("/certs/fullchain.pem") and os.path.exists("/certs/privkey.pem"):
+        app.run(host="0.0.0.0", port=443, ssl_context=('/certs/fullchain.pem', '/certs/privkey.pem'))
+    else:
+        app.run(host="0.0.0.0", port=443, ssl_context='adhoc')
