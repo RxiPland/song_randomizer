@@ -79,7 +79,14 @@ def download_file(filename):
 
 if __name__ == '__main__':
 
-    if os.path.exists("/certs/fullchain.pem") and os.path.exists("/certs/privkey.pem"):
-        app.run(host="0.0.0.0", port=443, ssl_context=('/certs/fullchain.pem', '/certs/privkey.pem'))
+    certs_path = os.environ.get('PATH_TO_CERTS_FOLDER')
+
+    pub_key_path = os.path.join(certs_path, "fullchain.pem")
+    priv_key_path = os.path.join(certs_path, "privkey.pem")
+
+    if os.path.exists(pub_key_path) and os.path.exists(priv_key_path):
+        app.run(host="0.0.0.0", port=443, ssl_context=(pub_key_path, priv_key_path))
+        
     else:
+        print("Using dummy HTTPs cert")
         app.run(host="0.0.0.0", port=443, ssl_context='adhoc')
