@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+</head>
+<body>
+
+    <style>
+        p{
+            padding: 0px;
+            padding-top: 1%;
+            margin: 10px;
+        }
+    </style>
+
+
+    <a style="color: white; text-decoration: none;" href="./upload">
+        <button>Nahrát nový soubor</button>
+    </a>
+
+    <a style="color: white; text-decoration: none;" href=".">
+        <button>Promíchat seznam</button>
+    </a>
+
+    
+    <button style="margin-right: 5%;" onclick="copyFunction()">Kopírovat seznam</button>
+    
+    <label for="quantity">Maximální počet:</label>
+    <input type="number" id="quantity" name="quantity" min="0">
+
+    <hr>
+
+    <p id="songPaths">
+        {% for item in songs %}
+        {{ item }}<br>
+        {% endfor %}
+    </p>
+
+
+    <script>
+        function copyFunction() {
+            // Get the <p> element
+            var pElement = document.getElementById("songPaths");
+            var rows = pElement.innerHTML.split('<br>').map(row => row.trim());
+
+            // Get the quantity input
+            var quantity = document.getElementById("quantity").value;
+            if (quantity == 0 || quantity == '') {
+                quantity = rows.length;
+            }
+
+            // Select the number of rows based on the quantity input
+            var selectedRows = rows.slice(0, quantity);
+
+
+            // Join the selected rows back together
+            var textToCopy = selectedRows.join('\n');
+
+            // Copy the text inside the <p> element
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    // Alert the copied text
+                    alert("Seznam zkopírován");
+                })
+                .catch(err => {
+                    console.error('Nepodařilo se zkopírovat text: ', err);
+                });
+        }
+    </script>
+</body>
+</html>
