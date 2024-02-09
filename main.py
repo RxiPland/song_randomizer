@@ -3,6 +3,8 @@ from werkzeug.utils import secure_filename
 import os
 import urllib.parse
 import random
+import datetime
+from tinytag import TinyTag
 
 
 app = Flask(__name__)
@@ -22,13 +24,27 @@ def get_songs():
         os.mkdir(UPLOADS_FOLDER)
 
     loaded_song_paths = list()
+    duration_sec = 0
+    
     for song in loaded_song_names:
         loaded_song_paths.append(request.base_url + "uploads/" + urllib.parse.quote(song))
+        
+        loadedSong = TinyTag.get("uploads/" + song, duration=True)
+
+        try:
+            duration_sec += int(loadedSong.duration)
+        except Exception as e:
+            print(e)
+
+
+    hours, remainder = divmod(duration_sec, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    duration_time = "%02d:%02d:%02d" % (hours, minutes, seconds)
 
     # randomize
     random.shuffle(loaded_song_paths)
 
-    return render_template("homepage.html", title="Found music", songs=loaded_song_paths)
+    return render_template("homepage.html", title="Found music", duration=duration_time, songs=loaded_song_paths)
 
 
 
