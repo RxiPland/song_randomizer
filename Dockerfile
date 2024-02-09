@@ -1,6 +1,5 @@
 FROM python:3.11
 
-WORKDIR /certs
 WORKDIR /app
 
 # Copy files
