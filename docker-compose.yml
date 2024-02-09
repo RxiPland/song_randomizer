@@ -6,6 +6,8 @@ services:
       - "4650:443"
     volumes:
       - uploadedSongs:/app/uploads
+      - /etc/letsencrypt/live/www.example.com:/etc/letsencrypt/live/www.example.com
+      - /etc/letsencrypt/archive/www.example.com:/etc/letsencrypt/archive/www.example.com
     environment:
       - PATH_TO_CERTS_FOLDER=/etc/letsencrypt/live/www.example.com
 
