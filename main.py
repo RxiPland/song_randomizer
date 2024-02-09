@@ -62,6 +62,13 @@ def upload_songs():
                 file.save(os.path.join(UPLOADS_FOLDER, filename))
                 filenames.append(filename)
 
+            else:
+                splitted = file.filename.split(".")
+                if(len(splitted) > 1):
+                    file_extension = splitted[-1]
+
+                return render_template("upload_result.html", title="Chyba!", content=f"Koncovka .{file_extension} není podporována!")
+
         return render_template("upload_result.html", title="Úspěch!", content=f"Soubory {', '.join(filenames)} byly úspěšně nahrány")
         
     
@@ -80,6 +87,9 @@ def download_file(filename):
 if __name__ == '__main__':
 
     certs_path = os.environ.get('PATH_TO_CERTS_FOLDER')
+
+    if certs_path is None:
+        certs_path = "/"
 
     pub_key_path = os.path.join(certs_path, "fullchain.pem")
     priv_key_path = os.path.join(certs_path, "privkey.pem")
