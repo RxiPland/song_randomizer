@@ -65,9 +65,11 @@ def upload_songs():
             else:
                 splitted = file.filename.split(".")
                 if(len(splitted) > 1):
-                    file_extension = splitted[-1]
+                    file_extension = "." + splitted[-1]
+                else:
+                    file_extension = str()
 
-                return render_template("upload_result.html", title="Chyba!", content=f"Koncovka .{file_extension} není podporována!")
+                return render_template("upload_result.html", title="Chyba!", content=f"Koncovka {file_extension} není podporována!")
 
         return render_template("upload_result.html", title="Úspěch!", content=f"Soubory {', '.join(filenames)} byly úspěšně nahrány")
         
