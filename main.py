@@ -4,6 +4,7 @@ import os
 import urllib.parse
 import random
 from tinytag import TinyTag
+import re
 
 
 class CacheUtils:
@@ -111,6 +112,7 @@ def upload_songs():
                 #filename = urllib.parse.quote(file.filename)
                 #filename = secure_filename(filename)
                 filename = file.filename
+                filename = re.sub(' +', '_', filename)
 
                 if not os.path.exists(UPLOADS_FOLDER):
                     os.mkdir(UPLOADS_FOLDER)
