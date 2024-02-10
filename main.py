@@ -63,8 +63,8 @@ class CacheUtils:
         songs_urls = list()
 
         for song in self.cached_songs_names:
-            #songs_urls.append(os.path.join(base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song))
-            songs_urls.append(os.path.join(base_url, UPLOADS_FOLDER) + "/" + song)
+            song_url = os.path.join(base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song)
+            songs_urls.append(song_url.strip())
 
         return songs_urls
 
