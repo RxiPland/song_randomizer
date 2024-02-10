@@ -3,54 +3,96 @@ from werkzeug.utils import secure_filename
 import os
 import urllib.parse
 import random
-import datetime
 from tinytag import TinyTag
 
 
-app = Flask(__name__)
+class CacheUtils:
 
+    # domain
+    base_url = str()
+
+    # cache variables
+    cached_duration_time_formatted = "00:00:00"
+    cached_songs_names = list()
+    cached_songs_urls = list()
+
+    def __init__(self) -> None:
+        self.full_cache()
+
+
+    def full_cache(self) -> None:
+        # all cache functions
+        self.update_songs_duration_cache()
+        self.update_loaded_songs_cache()
+
+
+    def update_songs_duration_cache(self) -> None:
+        loaded_song_names = []
+        if os.path.exists(UPLOADS_FOLDER):
+            loaded_song_names.extend(os.listdir(UPLOADS_FOLDER))
+
+        else:
+            os.mkdir(UPLOADS_FOLDER)
+            return
+
+
+        duration_sec = 0
+        
+        for song in loaded_song_names:        
+            loadedSong = TinyTag.get(os.path.join(UPLOADS_FOLDER, song), duration=True, tags=False)
+
+            try:
+                duration_sec += int(loadedSong.duration)
+            except Exception as e:
+                print(e)
+
+        hours, remainder = divmod(duration_sec, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        duration_time_formatted = "%02d:%02d:%02d" % (hours, minutes, seconds)
+
+        self.cached_duration_time_formatted = duration_time_formatted
+
+    def update_loaded_songs_cache(self) -> None:
+
+        if os.path.exists(UPLOADS_FOLDER):
+            self.cached_songs_names.clear()
+            self.cached_songs_names.extend(os.listdir(UPLOADS_FOLDER))
+        else:
+            os.mkdir(UPLOADS_FOLDER)
+            return
+
+
+        self.cached_songs_urls.clear()
+        for song in self.cached_songs_names:
+            self.cached_songs_urls.append(os.path.join(self.base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song))
+
+
+
+# Config variables
 ALLOWED_EXTENSIONS = {"mp3", "mp4", "ogg", "wav", "avi"}
-UPLOADS_FOLDER = "./uploads"
+UPLOADS_FOLDER = "uploads"
+
+app = Flask(__name__)
+cacheUtils = CacheUtils()
+
+
+
+def allowed_file(filename) -> bool:
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/", methods=["GET"])
 def get_songs():
-    loaded_song_names = []
 
-    if os.path.exists(UPLOADS_FOLDER):
-        loaded_song_names.extend(os.listdir(UPLOADS_FOLDER))
+    if cacheUtils.base_url != request.base_url:
+        cacheUtils.base_url = request.base_url
+        cacheUtils.full_cache()
 
-    else:
-        os.mkdir(UPLOADS_FOLDER)
+    random_songs_urls = cacheUtils.cached_songs_urls.copy()
+    random.shuffle(random_songs_urls)
 
-    loaded_song_paths = list()
-    duration_sec = 0
-    
-    for song in loaded_song_names:
-        loaded_song_paths.append(request.base_url + "uploads/" + urllib.parse.quote(song))
-        
-        loadedSong = TinyTag.get("uploads/" + song, duration=True)
-
-        try:
-            duration_sec += int(loadedSong.duration)
-        except Exception as e:
-            print(e)
-
-
-    hours, remainder = divmod(duration_sec, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    duration_time = "%02d:%02d:%02d" % (hours, minutes, seconds)
-
-    # randomize
-    random.shuffle(loaded_song_paths)
-
-    return render_template("homepage.html", title="Found music", duration=duration_time, songs=loaded_song_paths)
-
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return render_template("homepage.html", title="Found music", duration=cacheUtils.cached_duration_time_formatted, songs=random_songs_urls)
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -87,6 +129,10 @@ def upload_songs():
 
                 return render_template("upload_result.html", title="Chyba!", content=f"Koncovka {file_extension} není podporována!")
 
+
+        # update cache about songs after upload
+        cacheUtils.full_cache()
+
         return render_template("upload_result.html", title="Úspěch!", content=f"Soubory {', '.join(filenames)} byly úspěšně nahrány")
         
     
@@ -96,9 +142,9 @@ def upload_songs():
     else:
         return "Chyba!", 400
 
+
 @app.route('/uploads/<path:filename>', methods=["GET"])
 def download_file(filename):
-
     return send_file(os.path.join(UPLOADS_FOLDER, filename), as_attachment=True)
 
 
@@ -113,8 +159,9 @@ if __name__ == '__main__':
     priv_key_path = os.path.join(certs_path, "privkey.pem")
 
     if os.path.exists(pub_key_path) and os.path.exists(priv_key_path):
+        print("[LOG] Using HTTPs cert from environment path")
         app.run(host="0.0.0.0", port=443, ssl_context=(pub_key_path, priv_key_path))
         
     else:
-        print("Using dummy HTTPs cert")
+        print("[LOG] Using flask's dummy HTTPs cert")
         app.run(host="0.0.0.0", port=443, ssl_context='adhoc')
