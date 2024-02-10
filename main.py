@@ -57,7 +57,7 @@ class CacheUtils:
             os.mkdir(UPLOADS_FOLDER)
 
 
-    def get_songs_url(self, base_url) -> list:
+    def get_songs_urls(self, base_url) -> list:
         # join domain with song names
         
         songs_urls = list()
@@ -84,7 +84,7 @@ def allowed_file(filename) -> bool:
 
 @app.route("/", methods=["GET"])
 def homepage():
-    random_songs_urls: list = cacheUtils.get_songs_url(request.base_url).copy()
+    random_songs_urls: list = cacheUtils.get_songs_urls(request.base_url).copy()
     random.shuffle(random_songs_urls)
 
     return render_template("homepage.html", title="Found music", duration=cacheUtils.cached_duration_time_formatted, songs=random_songs_urls)
