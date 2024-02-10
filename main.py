@@ -84,7 +84,7 @@ def allowed_file(filename) -> bool:
 
 @app.route("/", methods=["GET"])
 def homepage():
-    random_songs_urls: tuple = cacheUtils.get_songs_url()
+    random_songs_urls: tuple = cacheUtils.get_songs_url(request.base_url)
     random.shuffle(random_songs_urls)
 
     return render_template("homepage.html", title="Found music", duration=cacheUtils.cached_duration_time_formatted, songs=random_songs_urls)
