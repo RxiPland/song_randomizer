@@ -63,7 +63,8 @@ class CacheUtils:
         songs_urls = list()
 
         for song in self.cached_songs_names:
-            songs_urls.append(os.path.join(base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song))
+            #songs_urls.append(os.path.join(base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song))
+            songs_urls.append(os.path.join(base_url, UPLOADS_FOLDER) + "/" + song)
 
         return songs_urls
 
@@ -107,7 +108,9 @@ def upload_songs():
                 return render_template("upload_result.html", title="Chyba!", content="Soubor nebyl vybrán!")
             
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
+                #filename = urllib.parse.quote(file.filename)
+                #filename = secure_filename(filename)
+                filename = file.filename
 
                 if not os.path.exists(UPLOADS_FOLDER):
                     os.mkdir(UPLOADS_FOLDER)
