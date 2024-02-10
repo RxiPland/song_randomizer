@@ -8,13 +8,9 @@ from tinytag import TinyTag
 
 class CacheUtils:
 
-    # domain
-    base_url = str()
-
     # cache variables
     cached_duration_time_formatted = "00:00:00"
     cached_songs_names = list()
-    cached_songs_urls = list()
 
     def __init__(self) -> None:
         self.full_cache()
@@ -59,13 +55,17 @@ class CacheUtils:
             self.cached_songs_names.extend(os.listdir(UPLOADS_FOLDER))
         else:
             os.mkdir(UPLOADS_FOLDER)
-            return
 
 
-        self.cached_songs_urls.clear()
+    def get_songs_url(self, base_url) -> tuple:
+        # join domain with song names
+        
+        songs_urls = list()
+
         for song in self.cached_songs_names:
-            self.cached_songs_urls.append(os.path.join(self.base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song))
+            songs_urls.append(os.path.join(base_url, UPLOADS_FOLDER) + "/" + urllib.parse.quote(song))
 
+        return tuple(songs_urls)
 
 
 # Config variables
@@ -83,13 +83,8 @@ def allowed_file(filename) -> bool:
 
 
 @app.route("/", methods=["GET"])
-def get_songs():
-
-    if cacheUtils.base_url != request.base_url:
-        cacheUtils.base_url = request.base_url
-        cacheUtils.full_cache()
-
-    random_songs_urls = cacheUtils.cached_songs_urls.copy()
+def homepage():
+    random_songs_urls: tuple = cacheUtils.get_songs_url()
     random.shuffle(random_songs_urls)
 
     return render_template("homepage.html", title="Found music", duration=cacheUtils.cached_duration_time_formatted, songs=random_songs_urls)
